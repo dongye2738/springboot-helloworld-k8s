@@ -1,0 +1,10 @@
+apiVersion: v2
+appVersion: 0.0.1
+description: test
+maintainers:
+- email: miosy1996@gmail.com
+  name: dongye
+  url: https://github.com/dongye2738
+name: mychart
+type: application
+version: 0.1.0

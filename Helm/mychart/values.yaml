@@ -1,0 +1,27 @@
+Name: springboot-helloworld
+
+Service:
+  ServiceType: NodePort
+  Server:
+    Port: 8080
+    TargetPort: 8080
+    NodePort: 31311
+
+  Management:
+    Port: 8081
+    TargetPort: 8081
+    NodePort: 31312
+
+Deployment:
+  ReplicasNum: 1
+  Containers:
+    Image: docker.dongye.com/test/springboot-helloworld
+    ImageTag: 0.0.1
+    ImagePullPolicy: Always
+  Resources:
+    Limits:
+      Cpu: 1000m
+      Memory: 512Mi
+    Requests:
+      Cpu: 500m
+      Memory: 256Mi

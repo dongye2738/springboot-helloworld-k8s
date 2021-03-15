@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.Name}}
+  labels:
+    app: {{.Values.Name}}
+spec:
+  type: {{.Values.Service.ServiceType}}              #---通过NodePort方式暴露端口，方便外界访问
+  ports:
+    - name: server           #---服务端口名，用于访问监控 UI
+      {{- if (and (eq .Values.Service.ServiceType "NodePort") (not (empty .Values.Service.Server.NodePort)))}}
+      nodePort: {{.Values.Service.Server.NodePort}}
+      {{- end}}
+      port: {{.Values.Service.Server.Port}}
+      targetPort: {{.Values.Service.Server.TargetPort}}
+    - name: management        #---指定监控端口名，表示此应用被 Springboot Admin 服务发现
+      {{- if (and (eq .Values.Service.ServiceType "NodePort") (not (empty .Values.Service.Management.NodePort)))}}
+      nodePort: {{.Values.Service.Management.NodePort}}
+      {{- end}}
+      port: {{.Values.Service.Management.Port}}
+      targetPort: {{.Values.Service.Management.TargetPort}}
+  selector:
+    app: {{.Values.Name}}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.Name}}
+  labels:
+    app: {{.Values.Name}}
+spec:
+  replicas: {{.Values.Deployment.ReplicasNum}}
+  selector:
+    matchLabels:
+      app: {{.Values.Name}}
+  template:
+    metadata:
+      labels:
+        app: {{.Values.Name}}
+    spec:
+      containers:
+      - name: {{.Values.Name}}
+        image: {{.Values.Deployment.Containers.Image}}:{{.Values.Deployment.Containers.ImageTag}}
+        imagePullPolicy: {{.Values.Deployment.Containers.ImagePullPolicy}}
+        ports:
+        - containerPort: {{.Values.Service.Server.Port}}
+          name: server
+        - containerPort: {{.Values.Service.Management.Port}}
+          name: management
+        resources:
+          limits:
+            cpu: {{.Values.Deployment.Resources.Limits.Cpu}}
+            memory: {{.Values.Deployment.Resources.Limits.Memory}}
+          requests:
+            cpu: {{.Values.Deployment.Resources.Requests.Cpu}}
+            memory: {{.Values.Deployment.Resources.Requests.Memory}}
